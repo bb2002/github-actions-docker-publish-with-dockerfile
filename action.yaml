@@ -36,6 +36,10 @@ inputs:
   docker_password:
     description: Docker password
     required: true
+  dockerfile:
+    description: Docker file location
+    required: false
+    default: '.'
 
 runs:
   using: "composite"
@@ -55,6 +59,7 @@ runs:
       run: |
         DEFAULT_BRANCH=$(git remote show origin | grep 'HEAD branch' | cut -d' ' -f5)
         IMAGE_TAG=${{ inputs.image_tag }}
+        DOCKERFILE_LOC=${{ inputs.dockerfile }}
         
         BRANCH_OR_TAG_NAME=${GITHUB_REF##*/}
         echo "BRANCH_OR_TAG_NAME: $BRANCH_OR_TAG_NAME"
@@ -88,7 +93,7 @@ runs:
 
         echo "::group::Build Image"
         echo "Building $IMAGE_NAME"
-        docker build --pull -t $IMAGE_NAME:$IMAGE_TAG .
+        docker build --pull -t $IMAGE_NAME:$IMAGE_TAG $DOCKERFILE_LOC
         echo "::endgroup::"
 
         echo "::group::Push Image"
